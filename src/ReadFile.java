@@ -1,9 +1,9 @@
-import java.awt.List;
+
 import java.util.*;
 //import java.
 public class ReadFile {
-    Dictionary documents;
-    List stopWords<String>;
+    Dictionary <String,Document> documents;
+    List<String> stopWords;
 
 
 }
