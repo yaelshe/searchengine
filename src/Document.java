@@ -16,5 +16,5 @@ public class Document
         this.docLength = docLength;
         this.mostCommWord = mostCommWord;
     }
-    
+
 }
