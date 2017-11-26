@@ -6,5 +6,7 @@ public class Main {
         System.out.println("try to c");
         System.out.println("try to cddd");
 
+        ReadFile r = new ReadFile("C:\\corpus");
+
     }
 }
