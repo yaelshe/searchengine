@@ -8,6 +8,8 @@ public class Document
     int max_tf;//number of appearances most ferquent term
     int docLength;
     String mostCommWord;
+    //String title ;
+    //String date ;
     List<String> list;
 
     public Document(String text, int max_tf, int docLength, String mostCommWord) {
@@ -15,6 +17,8 @@ public class Document
         this.max_tf = max_tf;
         this.docLength = docLength;
         this.mostCommWord = mostCommWord;
+        //this.title = title;
+        //this.date=date;
     }
 
 }
