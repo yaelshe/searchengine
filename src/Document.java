@@ -10,7 +10,7 @@ public class Document
     String mostCommWord;
     //String title ;
     //String date ;
-    List<String> list;
+
 
     public Document(String text, int max_tf, int docLength, String mostCommWord) {
         this.text = text;
@@ -20,5 +20,38 @@ public class Document
         //this.title = title;
         //this.date=date;
     }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public int getMax_tf() {
+        return max_tf;
+    }
+
+    public void setMax_tf(int max_tf) {
+        this.max_tf = max_tf;
+    }
+
+    public int getDocLength() {
+        return docLength;
+    }
+
+    public void setDocLength(int docLength) {
+        this.docLength = docLength;
+    }
+
+    public String getMostCommWord() {
+        return mostCommWord;
+    }
+
+    public void setMostCommWord(String mostCommWord) {
+        this.mostCommWord = mostCommWord;
+    }
+
 
 }

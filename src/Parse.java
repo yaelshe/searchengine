@@ -5,33 +5,45 @@ import java.util.*;
 
 public class Parse
 {
-    List<String> m_StopWords;
-    private Dictionary<Document,Term>m_terms;
+    private ArrayList<String> m_StopWords;
+    private Map<Term,Term>m_terms;
     private ArrayList<String> beforeTerms;
-    Dictionary<String,Document>m_documents;
+    private Map<String,Document>m_documents;
+    String currDoc;
 
 
 
 
-    public Parse(List<String> m_StopWords, Dictionary<Document, Term> m_terms, String beforeTerms,
-                 Dictionary<String,Document>documents) {
-        //this.m_StopWords = new List<String>(m_StopWords);
+    public Parse(ArrayList<String> m_StopWords, Map<Document, Term> m_terms, String beforeTerms,
+                 Map<String,Document>documents) {
+        this.m_StopWords = new ArrayList<String>(m_StopWords.size());
         //this.m_terms = m_terms;
         //this.beforeTerms = beforeTerms;
-        m_documents=documents;
+        m_documents=new HashMap<>(documents);
     }
     public void ParseAll()
     {
-       /** for (Map.Entry<String,Document> entry : m_documents.entrySet()) {
-            K key = entry.getKey();
-            V value = entry.getValue();
+        for (Map.Entry<String,Document> entry : m_documents.entrySet()) {
+
+            Document value = entry.getValue();
+            currDoc= entry.getKey();
+            parseDoc(value);
+
             // do stuff
         }
 
-              {
 
-        }*/
 
+    }
+    private void parseDoc(Document doc)
+    {
+
+    }
+    private List<String> breakTextToString (String text)
+    {
+
+        List<String> termsDoc =new ArrayList<String>();
+        return termsDoc;
     }
 
 
@@ -44,17 +56,7 @@ private boolean isCapital()
 
     }
     public static void dateHandler(){
-        String input = "Thu Jun 18 20:56:02 EDT 2009";
-        SimpleDateFormat parser = new SimpleDateFormat("EEE MMM d HH:mm:ss zzz yyyy");
-        Date date = null;
-        try {
-            date = parser.parse(input);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-        String formattedDate = formatter.format(date);
-        System.out.println(formattedDate);
+
 
     }
     /**private void capitalHandler(String term){
