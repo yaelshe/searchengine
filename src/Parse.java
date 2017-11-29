@@ -63,9 +63,46 @@ private boolean isCapital()
 {// // a function to check if the term has capital letter
     return false;}
 
-    private void numbersHandler(String s){
-    //change numer from 83.333333 to 83.33
+    private void numbersHandler(String s) {
+        //change numer from 83.333333 to 83.33
+        //String tt = "3.5555";
+        if (s.indexOf('.')!=-1) {
+            if (s.indexOf(',')!=-1)
+            {
+                s=s.replaceAll(",","");
+            }
+            int y = s.indexOf('.');
 
+            //System.out.println(l);
+            String ttt = s.substring(y + 1);
+            if (ttt.length() > 2) {
+                String l = s.substring(y + 3, y + 4);
+                int xx = Integer.parseInt(l);
+                if (xx >= 5) {
+                    double x = Double.parseDouble(s);
+                    x = x + 0.01;
+                    s = Double.toString(x);
+                    s = s.substring(0, y + 3);
+                    // System.out.println(s);
+                } else {
+                    //tt = Double.toString(x);
+                    s = s.substring(0, y + 3);
+                    //System.out.println(s);
+                }
+            }
+        }
+    }
+    private  static  void  percent (String s){
+        if(s.indexOf("%") != -1)
+        {
+            s = s.replace('%',' ')+"percent";
+            //System.out.println(s);
+        }
+        if(s.indexOf("percentage") != -1)
+        {
+            s = s.replaceAll("percentage","percent");
+            //System.out.println(s);
+        }
     }
     public static void dateHandler(){
         //change the format of the date in the text to the rule we have
