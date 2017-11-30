@@ -84,6 +84,7 @@ public class Parse
                             Map<String,Integer> docss=new HashMap<>();//jkdj
                             Term newterm = new Term(1,docss);
                             m_terms.put(termsDoc[i],newterm)  ;
+                            newterm.docs.put(currDoc,1);//update the list of docs the term is in
                         }
                     }
 
@@ -110,10 +111,18 @@ public class Parse
     }*/
 
 
-    private boolean isNumber(String s){
+    private boolean isNumber(String str){
         // a function to check if the term is a number
-        return false;}
-
+        try
+        {
+            double d = Double.parseDouble(str);
+        }
+        catch(NumberFormatException nfe)
+        {
+            return false;
+        }
+        return true;
+        }
 private boolean isDate(String s1,String s2,String s3,String s4){
     // a function to check if the term is part of a date
         return false;}
