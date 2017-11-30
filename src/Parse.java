@@ -10,16 +10,14 @@ public class Parse
     private ArrayList<String> beforeTerms;
     private Map<String,Document>m_documents;
     String currDoc;
-
-
-
-
+    private  Map<String,String> Months;
     public Parse(ArrayList<String> m_StopWords, Map<String, Term> m_terms, String beforeTerms,
                  Map<String,Document>documents) {
         this.m_StopWords = new ArrayList<String>(m_StopWords.size());
         this.m_terms = new HashMap<>(m_terms);
         //this.beforeTerms = beforeTerms;
         m_documents=new HashMap<>(documents);
+
     }
     public void ParseAll()
     {
@@ -42,35 +40,61 @@ public class Parse
         //the terms are in "termsDoc"
         for (int i=0;i<termsDoc.length;i++)
         {
-            if (isNumber(termsDoc[i]))
+            if (isNumber(termsDoc[i].substring(0,1)))/////kdjla
             {
-                termsDoc[i]= numbersHandler(termsDoc[i]);
-                if (isPercent(termsDoc[i+1]))
+                termsDoc[i]= numbersHandler(termsDoc[i]);// numb 25-27,21/05/1991,29-word have p
+                if (isPercent(termsDoc[i+1]) || termsDoc[i].substring(termsDoc[i].length()-1)=="%")
                 {
                     String mypercent = percent(termsDoc[i]);
                     if (m_terms.containsKey(mypercent))
                     {
                         //think what have to update
-                    }else
+                        if (m_terms.get(mypercent).docs.containsKey(currDoc))//if i have the doc in the map of docs
+                        {
+                            m_terms.get(mypercent).docs.put(currDoc,m_terms.get(mypercent).docs.get(currDoc)+1);//update
+
+                        }
+                        else
+                        {
+                           m_terms.get(mypercent).docs.put(currDoc,1);
+                           m_terms.get(mypercent).numOfDocIDF++;
+                        }
+                    }
+                    else
                     {
                         Map<String,Integer> docss=new HashMap<>();//jkdj
-                        Term newterm = new Term(1,docss);
+                        docss.put(currDoc,1);
+                        Term newterm = new Term(docss);
                       m_terms.put(mypercent,newterm)  ;
                     }
+                    if (isPercent(termsDoc[i+1]))
+                    {
                     i++;
+                    }
                 }
                 else
                 {
-                    if (isDate(termsDoc[i-1],termsDoc[i],termsDoc[i+1],termsDoc[i+2]))
+                    if (isDate(termsDoc[i-1],termsDoc[i+1]))
                     {
                         String mydate = dateHandler(termsDoc[i-1],termsDoc[i],termsDoc[i+1],termsDoc[i+2]);
                         if (m_terms.containsKey(mydate))
                         {
                             //think what have to update
-                        }else
+                            if (m_terms.get(mydate).docs.containsKey(currDoc))//if i have the doc in the map of docs
+                            {
+                                m_terms.get(mydate).docs.put(currDoc,m_terms.get(mydate).docs.get(currDoc)+1);//update
+
+                            }
+                            else
+                            {
+                                m_terms.get(mydate).docs.put(currDoc,1);
+                            }
+                        }
+                        else
                         {
                             Map<String,Integer> docss=new HashMap<>();//jkdj
-                            Term newterm = new Term(1,docss);
+                            docss.put(currDoc,1);
+                            Term newterm = new Term(docss);
                             m_terms.put(mydate,newterm)  ;
                         }
                     }
@@ -79,12 +103,23 @@ public class Parse
                         if (m_terms.containsKey(termsDoc[i]))
                         {
                             //think what have to update
-                        }else
+                            if (m_terms.get(termsDoc[i]).docs.containsKey(currDoc))//if i have the doc in the map of docs
+                            {
+                                m_terms.get(termsDoc[i]).docs.put(currDoc,m_terms.get(termsDoc[i]).docs.get(currDoc)+1);//update
+
+                            }
+                            else
+                            {
+                                m_terms.get(termsDoc[i]).docs.put(currDoc,1);
+                            }
+                        }
+                        else
                         {
                             Map<String,Integer> docss=new HashMap<>();//jkdj
-                            Term newterm = new Term(1,docss);
+                            docss.put(currDoc,1);
+                            Term newterm = new Term(docss);
                             m_terms.put(termsDoc[i],newterm)  ;
-                            newterm.docs.put(currDoc,1);//update the list of docs the term is in
+                            //newterm.docs.put(currDoc,1);//update the list of docs the term is in
                         }
                     }
 
@@ -115,23 +150,52 @@ public class Parse
         // a function to check if the term is a number
         try
         {
-            double d = Double.parseDouble(str);
+            /**
+             * if (i have -)
+             * 122,222
+             */
+            if (str.substring(str.length()-2)=="th")
+            {
+                str=str.substring(0,str.length()-2);
+            }
+            if (str.substring(str.length()-1)=="%")
+            {
+                double d = Double.parseDouble(str.substring(0, str.length() - 1));//klajfd;
+            }
+            else
+            {
+                double d = Double.parseDouble(str);
+            }
         }
         catch(NumberFormatException nfe)
         {
             return false;
         }
         return true;
-        }
-private boolean isDate(String s1,String s2,String s3,String s4){
+        }//
+    private boolean isDate(String s1,String s2)
+    {
     // a function to check if the term is part of a date
-        return false;}
-    private boolean isPercent(String s){
+        if (Months.containsKey(s1)|| Months.containsKey(s2))
+        {
+            return  true;
+        }
+        return false;
+    }
+    private boolean isPercent(String s)
+    {
         // a function to check if the term is part of a percent
-        return false;}
-private boolean isCapital()
-{// // a function to check if the term has capital letter
-    return false;}
+        if (s=="percent" || s == "percentage")
+        {
+            return true;
+        }
+        return false;
+    }//
+    private boolean isCapital()
+    {
+        // // a function to check if the term has capital letter
+    return false;
+    }
 
     private String numbersHandler(String s) {
         //change numer from 83.333333 to 83.33
@@ -140,12 +204,19 @@ private boolean isCapital()
         if (s.indexOf('%')!=-1)
         {
             percent="%";
+            s=s.substring(0,s.length()-1);
+        }
+        if (s.indexOf("th")!=-1)
+        {
+
+            s=s.substring(0,s.length()-2);
+        }
+        if (s.indexOf(',')!=-1)
+        {
+            s=s.replaceAll(",","");
         }
         if (s.indexOf('.')!=-1) {
-            if (s.indexOf(',')!=-1)
-            {
-                s=s.replaceAll(",","");
-            }
+
             int y = s.indexOf('.');
 
             //System.out.println(l);
@@ -171,7 +242,7 @@ private boolean isCapital()
     private  String  percent (String s){
         if(s.indexOf("%") != -1)
         {
-            return s.replace('%',' ')+"percent";
+            return s.replaceAll("%","")+"percent";
             //System.out.println(s);
         }else
         {

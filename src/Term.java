@@ -6,9 +6,10 @@ public class Term
                                 // documents the word is in and number of appearances in each
 
 
-    public Term(int numOfDocIDF, Map<String, Integer> docs) {
-        this.numOfDocIDF = numOfDocIDF;
+    public Term( Map<String, Integer> docs) {
         this.docs = docs;
+        this.numOfDocIDF = docs.size();
+
     }
 
 }
