@@ -9,14 +9,14 @@ public class Parse
     private Map<String,Term>m_terms;
     private ArrayList<String> beforeTerms;
     private Map<String,Document>m_documents;
-    Map <String,String> months=new HashMap<String, String>(){{
+    Map <String,String> Months=new HashMap<String, String>(){{
         put("january","01"); put("february","02"); put("march","03");put("april","04");put("may","05");
         put("june","06");put("july","07");put("august","08");put("september","09");put("october","10");
         put("november","11");put("december","12");put("jan", "01");put("feb","02");put("mar","03");
         put("apr","04");put("may","05");put("jun","06");put("jul","07");put("aug","08");put("sep","09");
         put("oct","10");put("nov","11");put("dec","03");}};
     String currDoc;
-    private  Map<String,String> Months;
+    //private  Map<String,String> ;
     public Parse(ArrayList<String> m_StopWords, Map<String, Term> m_terms, String beforeTerms,
                  Map<String,Document>documents) {
         this.m_StopWords = new ArrayList<String>(m_StopWords.size());
@@ -45,65 +45,21 @@ public class Parse
         //here we need to put a loop that goes over all the terms on the text
         //the terms are in "termsDoc"
         for (int i=0;i<termsDoc.length;i++) {
-            if (isNumber(termsDoc[i].substring(0, 1)))/////kdjla
+            if (isNumber(termsDoc[i].substring(0, termsDoc[i].length())))/////
             {
-                termsDoc[i] = numbersHandler(termsDoc[i]);// numb 25-27,21/05/1991,29-word have p
+                termsDoc[i] = numbersHandler(termsDoc[i]);// numb 25-27,21/05/1991,29-word done
                 if (isPercent(termsDoc[i + 1]) || termsDoc[i].substring(termsDoc[i].length() - 1) == "%") {
                     String mypercent = percent(termsDoc[i]);
-                    if (m_terms.containsKey(mypercent)) {
-                        //think what have to update
-                        if (m_terms.get(mypercent).docs.containsKey(currDoc))//if i have the doc in the map of docs
-                        {
-                            m_terms.get(mypercent).docs.put(currDoc, m_terms.get(mypercent).docs.get(currDoc) + 1);//update
-
-                        } else {
-                            m_terms.get(mypercent).docs.put(currDoc, 1);
-                            m_terms.get(mypercent).numOfDocIDF++;
-                        }
-                    } else {
-                        Map<String, Integer> docss = new HashMap<>();//jkdj
-                        docss.put(currDoc, 1);
-                        Term newterm = new Term(docss);
-                        m_terms.put(mypercent, newterm);
-                    }
+                    addToTerm(mypercent);
                     if (isPercent(termsDoc[i + 1])) {
                         i++;
                     }
                 } else {
-                    if (isDate(termsDoc[i - 1], termsDoc[i + 1])) {
+                    if (isDate(termsDoc[i - 1], termsDoc[i + 1])&& !termsDoc[i].contains(".")) {//2165
                         String mydate = dateHandler(termsDoc[i - 1], termsDoc[i], termsDoc[i + 1], termsDoc[i + 2]);
-                        if (m_terms.containsKey(mydate)) {
-                            //think what have to update
-                            if (m_terms.get(mydate).docs.containsKey(currDoc))//if i have the doc in the map of docs
-                            {
-                                m_terms.get(mydate).docs.put(currDoc, m_terms.get(mydate).docs.get(currDoc) + 1);//update
-
-                            } else {
-                                m_terms.get(mydate).docs.put(currDoc, 1);
-                            }
-                        } else {
-                            Map<String, Integer> docss = new HashMap<>();//jkdj
-                            docss.put(currDoc, 1);
-                            Term newterm = new Term(docss);
-                            m_terms.put(mydate, newterm);
-                        }
+                        addToTerm(mydate);
                     } else {
-                        if (m_terms.containsKey(termsDoc[i])) {
-                            //think what have to update
-                            if (m_terms.get(termsDoc[i]).docs.containsKey(currDoc))//if i have the doc in the map of docs
-                            {
-                                m_terms.get(termsDoc[i]).docs.put(currDoc, m_terms.get(termsDoc[i]).docs.get(currDoc) + 1);//update
-
-                            } else {
-                                m_terms.get(termsDoc[i]).docs.put(currDoc, 1);
-                            }
-                        } else {
-                            Map<String, Integer> docss = new HashMap<>();//jkdj
-                            docss.put(currDoc, 1);
-                            Term newterm = new Term(docss);
-                            m_terms.put(termsDoc[i], newterm);
-                            //newterm.docs.put(currDoc,1);//update the list of docs the term is in
-                        }
+                        addToTerm(termsDoc[i]);
                     }
 
                 }
@@ -172,12 +128,17 @@ public class Parse
     }
     private boolean isNumber(String str){
         // a function to check if the term is a number
+        if (str.substring(1,str.length()).contains("-"))
+        {
+            return false;
+        }
         try
         {
             /**
-             * if (i have -)
-             * 122,222
+             * if (i have -) done
+             * 122,222 done
              */
+            str=str.replaceAll(",","");
             if (str.substring(str.length()-2)=="th")
             {
                 str=str.substring(0,str.length()-2);
@@ -200,7 +161,7 @@ public class Parse
     private boolean isDate(String s1,String s2)
     {
     // a function to check if the term is part of a date
-        if (Months.containsKey(s1)|| Months.containsKey(s2))
+        if (Months.containsKey(s1.toLowerCase())|| Months.containsKey(s2.toLowerCase()))
         {
             return  true;
         }
@@ -280,11 +241,57 @@ public class Parse
         }*/
         //return s;
     }
-    public String dateHandler(String S1,String s2,String s3,String s4){
+    public String dateHandler(String s1,String s2,String s3,String s4){//(termsDoc[i - 1], termsDoc[i], termsDoc[i + 1], termsDoc[i + 2])
         //change the format of the date in the text to the rule we have
+        String day="";
+        String month="";
+        String year="";
+        if (Months.containsKey(s3.toLowerCase()))
+        {
+            int intday = Integer.parseInt(s2);
+            day = cmpToDay(intday);
+            month=Months.get(s3.toLowerCase());
+            if (isNumber(s4))
+            {
+                if (s4.length() == 4)
+                {
+                    year = s4;
+                    return day+"/"+month+"/"+year;
+                }
+                if (s4.length()==2)
+                {
+                    year = "19"+s4;
+                    return day+"/"+month+"/"+year;
+                }
 
+            }
+            return day+"/"+month;
+        }
+        else
+        {
+            month=Months.get(s1.toLowerCase());
+            if (isNumber(s3)&& s3.length()==4)
+            {
+                year=s3;
+                int intday = Integer.parseInt(s2);
+                day = cmpToDay(intday);
+                return day+"/"+month+"/"+year;
+            }
+            else
+            {
+                if (s2.length()<3)
+                {
+                    int intday = Integer.parseInt(s2);
+                    day = cmpToDay(intday);
+                    return day+"/"+month;
+                }else
+                {
+                    year = s2;
+                    return month+"/"+year;
+                }
+            }
+        }
 
-        return "";
     }
     public static List<String> capitalTerm(String s1, String s2,String s3,String s4) {
         //ADD 4 STRING TO FUNC RETURN NUMBER OF WORDS IN phrase
@@ -298,6 +305,18 @@ public class Parse
                 phrase.add(s4);
         }
         return phrase;
+    }
+    private String cmpToDay(int d){
+        String day = "";
+        if (d<10)
+        {
+            day = "0"+Integer.toString(d);
+        }
+        else
+        {
+            day = Integer.toString(d);
+        }
+        return  day;
     }
     /**private void capitalHandler(String term){
      * //change the format of the term in the text to the rule we have about capital
