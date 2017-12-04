@@ -39,65 +39,98 @@ public class Parse
 
 
     }
-    private void parseDoc(Document doc)
+    public void parseDoc(Document doc)
     {
         String []termsDoc=doc.getText().split("\\s+");
         //here we need to put a loop that goes over all the terms on the text
         //the terms are in "termsDoc"
         for (int i=0;i<termsDoc.length;i++) {
-            if (isNumber(termsDoc[i].substring(0, termsDoc[i].length())))/////
+            termsDoc[i] = removeExtra(termsDoc[i]);
+            if (isNumber(termsDoc[i]))/////
             {
                 termsDoc[i] = numbersHandler(termsDoc[i]);// numb 25-27,21/05/1991,29-word done
-                if (isPercent(termsDoc[i + 1]) || termsDoc[i].substring(termsDoc[i].length() - 1) == "%") {
+                if (isPercent(removeExtra(termsDoc[i + 1])) || termsDoc[i].substring(termsDoc[i].length() - 1) == "%") {
                     String mypercent = percent(termsDoc[i]);
+                    System.out.println(mypercent + "--1");
                     addToTerm(mypercent);
                     if (isPercent(termsDoc[i + 1])) {
                         i++;
                     }
                 } else {
-                    if (isDate(termsDoc[i - 1], termsDoc[i + 1])&& !termsDoc[i].contains(".")) {//2165
-                        String mydate = dateHandler(termsDoc[i - 1], termsDoc[i], termsDoc[i + 1], termsDoc[i + 2]);
-                        addToTerm(mydate);
+                    //System.out.println(isDate(termsDoc[i - 1], termsDoc[i + 1]));
+                    if (isDate(removeExtra(termsDoc[i - 1]), removeExtra(termsDoc[i + 1])) && !termsDoc[i].contains(".")) {//216
+                        String s4="";
+                        String s3="";
+                        if (i+2<termsDoc.length)
+                        {
+                            s4 = removeExtra(termsDoc[i + 2]);
+                        }
+                        if (i+1<termsDoc.length)
+                        {
+                            s3 = removeExtra(termsDoc[i + 1]);
+                        }
+                        String mydate = dateHandler(removeExtra(termsDoc[i - 1]), removeExtra(termsDoc[i]), s3,s4 );
+                        System.out.println(mydate + "--2");
+                        addToTerm(mydate);// to update i ....
                     } else {
+                        System.out.println(termsDoc[i] + "--3");
                         addToTerm(termsDoc[i]);
                     }
 
                 }
 
-            } else if (!Character.isLowerCase(termsDoc[i].charAt(0))) {
-                //cheek if the term capital ...
-                List<String> ph = capitalTerm(termsDoc[i], termsDoc[i + 1], termsDoc[i + 2], termsDoc[i + 3]);
-                if (ph.size() == 1)
-                    ph.get(0).toLowerCase();
-                    //add to term dictionary
-                else {
-                    for (int j = 0; j < ph.size() - 1; j++) {
-                        ph.get(0).toLowerCase();
-                        //add term to dictionary
+            } else {
+                if (!Character.isLowerCase(termsDoc[i].charAt(0))) {
+                    //cheek if the term capital ...
+                    if (i + 3 < termsDoc.length) {
+                        List<String> ph = capitalTerm(termsDoc[i], termsDoc[i + 1], termsDoc[i + 2], termsDoc[i + 3]);
+                        if (ph.size() == 1)
+                            ph.get(0).toLowerCase();
+                            //add to term dictionary
+                        else {
+                            for (int j = 0; j < ph.size() - 1; j++) {
+                                ph.get(0).toLowerCase();
+                                //add term to dictionary
+                            }
+                        }
                     }
                 }
+                if (termsDoc[i].contains("-")) {
+                    int makaf = termsDoc[i].indexOf("-");
+                    String part1 = termsDoc[i].substring(0, makaf);
+                    System.out.println(part1 + "--5");
+                    addToTerm(part1);
+                    String part2 = termsDoc[i].substring(makaf + 1, termsDoc[i].length());
+                    if ((part2.contains("-")) && ((part2.substring(part2.indexOf('-') + 1, part2.length())).length() > 0)) {
+                        String part3 = part2.substring(0, part2.indexOf('-'));
+                        String part4 = part2.substring(part2.indexOf('-') + 1, part2.length());
+                        //System.out.println(part3);
+                        // System.out.println(part4);
+                        addToTerm(part3);
+                        addToTerm(part4);
+                        termsDoc[i] = (part1 + " " + part3 + " " + part4);
+                    } else {
+                        System.out.println(part2);
+                        addToTerm(part2);
+                        termsDoc[i] = part1 + " " + part2;
+                    }
+
+                }
+                if (termsDoc[i].contains("\'")) {
+                    int makaf = termsDoc[i].indexOf("\'");
+                    String part1 = termsDoc[i].substring(0, makaf);
+                    System.out.println(part1 + "--6");
+                    addToTerm(part1);
+                    String part2 = termsDoc[i].replace("\'", "");
+
+                    termsDoc[i] = (part2);
+
+                }
+                System.out.println(termsDoc[i] + "--7");
+                addToTerm(termsDoc[i]);
 
             }
-            if(termsDoc[i].contains("-"))
-            {
-                int makaf=termsDoc[i].indexOf("-");
-                String part1=termsDoc[i].substring(0,makaf);
-                String part2=termsDoc[i].substring(makaf+1,termsDoc[i].length());
-                //add part1, part 2 part 1 &part 2 together and with - to terms
-
-            }
-            if(termsDoc[i].contains("\'"))
-            {
-                int makaf=termsDoc[i].indexOf("\'");
-                String part1=termsDoc[i].substring(0,makaf);
-                String part2=termsDoc[i].substring(makaf+1,termsDoc[i].length());
-                //add part1, part 2 part 1 &part 2 together and with - to terms
-
-            }
-
-
         }
-
     }
     /**private List<String> breakTextToString (String text)
     {
@@ -128,6 +161,9 @@ public class Parse
     }
     private boolean isNumber(String str){
         // a function to check if the term is a number
+       // System.out.println(str);
+        if (str.length()==0){
+            return false;}
         if (str.substring(1,str.length()).contains("-"))
         {
             return false;
@@ -139,11 +175,12 @@ public class Parse
              * 122,222 done
              */
             str=str.replaceAll(",","");
-            if (str.substring(str.length()-2)=="th")
+            //System.out.println(str);
+            if (str.length()>2&&str.substring(str.length()-2)=="th")
             {
                 str=str.substring(0,str.length()-2);
             }
-            if (str.substring(str.length()-1)=="%")
+            if (str.length()>1&&str.substring(str.length()-1)=="%")
             {
                 double d = Double.parseDouble(str.substring(0, str.length() - 1));//klajfd;
             }
@@ -161,6 +198,9 @@ public class Parse
     private boolean isDate(String s1,String s2)
     {
     // a function to check if the term is part of a date
+        //System.out.println(Months.containsKey(s1.toLowerCase()));
+        //System.out.println(Months.containsKey(s2.toLowerCase()));
+        //System.out.println(s2);
         if (Months.containsKey(s1.toLowerCase())|| Months.containsKey(s2.toLowerCase()))
         {
             return  true;
@@ -317,6 +357,19 @@ public class Parse
             day = Integer.toString(d);
         }
         return  day;
+    }
+    public static String removeExtra(String str)
+    {
+        str=str.replaceAll("[,$#!?*(){}\":;+=|\\[\\]]","");
+        char last=str.charAt(str.length()-1);
+        char first= str.charAt(0);
+        if(first=='<'||first=='\''||first=='^')
+            str=str.substring(1,str.length()-1);
+            //if(str.endsWith(".\""))
+            //  str=str.substring(0,str.length()-2);
+        else if(last=='.'||last=='\''||last=='^'||last=='-'||last=='>')
+            str=str.substring(0,str.length()-1);
+        return str;
     }
     /**private void capitalHandler(String term){
      * //change the format of the term in the text to the rule we have about capital
