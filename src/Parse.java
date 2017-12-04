@@ -40,19 +40,23 @@ public class Parse
         String []termsDoc=doc.getText().split("\\s+");
         //here we need to put a loop that goes over all the terms on the text
         //the terms are in "termsDoc"
+        boolean flagCapital=false;
+        int count=0;
         for (int i=0;i<termsDoc.length;i++)
         {
             termsDoc[i] = removeExtra(termsDoc[i]);
             if (isNumber(termsDoc[i]))/////
             {
                 termsDoc[i] = numbersHandler(termsDoc[i]);// numb 25-27,21/05/1991,29-word done
-                if (isPercent(removeExtra(termsDoc[i + 1])) || termsDoc[i].substring(termsDoc[i].length() - 1) == "%") {
+
+                if (  termsDoc[i].charAt(termsDoc[i].length()-1) == '%'||isPercent(removeExtra(termsDoc[i + 1]))) {
                     String mypercent = percent(termsDoc[i]);
                     System.out.println(mypercent + "--1");
                     addToTerm(mypercent);
+                    if (i+1<termsDoc.length){
                     if (isPercent(termsDoc[i + 1])) {
                         i++;
-                    }
+                    }}
                 } else {
                     //System.out.println(isDate(termsDoc[i - 1], termsDoc[i + 1]));
                     if (isDate(removeExtra(termsDoc[i - 1]), removeExtra(termsDoc[i + 1])) && !termsDoc[i].contains(".")) {//216
@@ -106,7 +110,7 @@ public class Parse
                     if (Character.isUpperCase(termsDoc[i].charAt(0))) {
                         //check if the term capital letter up to phrase of 4 words.
                         String str1 = null, str2 = null, str3 = null, total = null;
-                        int count = 0;
+                        count = 0;
                         if (i + 1 < termsDoc.length) {
                             str1 = termsDoc[i + 1];
                             count = 1;
@@ -119,13 +123,14 @@ public class Parse
                                 }
                             }
                             List<String> ph = capitalTerm(termsDoc[i], str1, str2, str3);
-                            i = i + count;// so we won't check again the same words !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                            flagCapital=true;// so we won't check again the same words !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                             for (int j = 0; j < ph.size(); j++) {
-                                ph.get(j).toLowerCase();
+                               // ph.get(j).toLowerCase();
 
                                 total = total + (ph.get(j).toLowerCase());
                                 //add term to dictionary
                             }
+                            termsDoc[i]=total;
 
 
                         }
@@ -146,6 +151,8 @@ public class Parse
 
                     System.out.println(termsDoc[i] + "--7");
                     addToTerm(termsDoc[i]);
+                    if(flagCapital)
+                        i=i+count;
                 }
             }
         }
@@ -217,13 +224,14 @@ public class Parse
         }
         return str;
     }
-    private boolean isNumber(String str){
+    public boolean isNumber(String str){
         // a function to check if the term is a number
        // System.out.println(str);
         if (str.length()==0){
             return false;}
         if (str.substring(1,str.length()).contains("-"))
         {
+
             return false;
         }
         try
@@ -233,17 +241,22 @@ public class Parse
              * 122,222 done
              */
             str=str.replaceAll(",","");
-            //System.out.println(str);
+           // System.out.println(str+21);
             if (str.length()>2&&str.substring(str.length()-2)=="th")
             {
                 str=str.substring(0,str.length()-2);
+                //System.out.println(str+3);
             }
-            if (str.length()>1&&str.substring(str.length()-1)=="%")
+            System.out.println(str.charAt(str.length()-1));
+            //str.charAt(str.length()-1)
+            if (str.length()>1&&str.charAt(str.length()-1)=='%')
             {
+                //System.out.println(str+222);
                 double d = Double.parseDouble(str.substring(0, str.length() - 1));//klajfd;
             }
             else
             {
+                //System.out.println(str+1);
                 double d = Double.parseDouble(str);
             }
         }
@@ -320,11 +333,11 @@ public class Parse
     private  String  percent (String s){
         if(s.indexOf("%") != -1)
         {
-            return s.replaceAll("%","")+"percent";
+            return s.replaceAll("%","")+" percent";
             //System.out.println(s);
         }else
         {
-            return (s + "percent");
+            return (s + " percent");
 
         }
         /**if(s.indexOf("percentage") != -1)
@@ -446,20 +459,14 @@ public class Parse
         {
             str=checkApo(str);
         }
-        else if(str.contains("%")&&Character.isDigit(str.charAt(0)))
+        else if(isNumber(str))
         {
-            if(!str.contains("."))
-                str=str.substring(0,str.indexOf('%'))+ "percent";
-            else
-            {
-                String num=str.substring(0,str.indexOf('%'));
-
+            str=numbersHandler(str);
+            if (str.charAt(str.length()-1)=='%'){
+                str=percent(str);
             }
         }
-        else if(Character.isDigit(str.charAt(0))&&str.contains("."))
-        {
 
-        }
 
         //is number to check for 13.3334
         //check is percent
