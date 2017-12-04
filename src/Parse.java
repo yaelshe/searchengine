@@ -32,19 +32,16 @@ public class Parse
             Document value = entry.getValue();
             currDoc= entry.getKey();
             parseDoc(value);
-
             // do stuff
         }
-
-
-
     }
     public void parseDoc(Document doc)
     {
         String []termsDoc=doc.getText().split("\\s+");
         //here we need to put a loop that goes over all the terms on the text
         //the terms are in "termsDoc"
-        for (int i=0;i<termsDoc.length;i++) {
+        for (int i=0;i<termsDoc.length;i++)
+        {
             termsDoc[i] = removeExtra(termsDoc[i]);
             if (isNumber(termsDoc[i]))/////
             {
@@ -80,22 +77,9 @@ public class Parse
                 }
 
             } else {
-                if (!Character.isLowerCase(termsDoc[i].charAt(0))) {
-                    //cheek if the term capital ...
-                    if (i + 3 < termsDoc.length) {
-                        List<String> ph = capitalTerm(termsDoc[i], termsDoc[i + 1], termsDoc[i + 2], termsDoc[i + 3]);
-                        if (ph.size() == 1)
-                            ph.get(0).toLowerCase();
-                            //add to term dictionary
-                        else {
-                            for (int j = 0; j < ph.size() - 1; j++) {
-                                ph.get(0).toLowerCase();
-                                //add term to dictionary
-                            }
-                        }
-                    }
-                }
                 if (termsDoc[i].contains("-")) {
+                    //checks if the word has an - in the middle and
+                    // save the word before and after it and also for twice -
                     int makaf = termsDoc[i].indexOf("-");
                     String part1 = termsDoc[i].substring(0, makaf);
                     System.out.println(part1 + "--5");
@@ -117,6 +101,8 @@ public class Parse
 
                 }
                 if (termsDoc[i].contains("\'")) {
+                    //checks if the word has an apostrphe in the middle and
+                    // save the word without it and the part before it
                     int makaf = termsDoc[i].indexOf("\'");
                     String part1 = termsDoc[i].substring(0, makaf);
                     System.out.println(part1 + "--6");
@@ -126,38 +112,87 @@ public class Parse
                     termsDoc[i] = (part2);
 
                 }
+                if (Character.isUpperCase(termsDoc[i].charAt(0)))
+                {
+                    //check if the term capital letter up to phrase of 4 words.
+                    String str1=null, str2=null,str3=null,total=null;
+                    int count=0;
+                    if (i + 1 < termsDoc.length) {
+                        str1= termsDoc[i+1];
+                        count=1;
+                        if(i+2<termsDoc.length) {
+                            str2 = termsDoc[i + 2];
+                            count=2;
+                            if(i+3<termsDoc.length) {
+                                str3 = termsDoc[i + 3];
+                                count = 3;
+                            }
+                        }
+                        List<String> ph = capitalTerm(termsDoc[i], str1,str2,str3);
+                        i=i+count;// so we won't check again the same words !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        for (int j = 0; j < ph.size(); j++) {
+                            ph.get(j).toLowerCase();
+                            total=total+(ph.get(j).toLowerCase());
+                            //add term to dictionary
+                        }
+
+
+                    }
+                }
                 System.out.println(termsDoc[i] + "--7");
                 addToTerm(termsDoc[i]);
 
             }
         }
     }
-    /**private List<String> breakTextToString (String text)
-    {
-
-        List<String> termsDoc =new ArrayList<String>();
-        return termsDoc;
-    }*/
 
     private void addToTerm(String str)
     {
-        if (m_terms.containsKey(str)) {
-            //think what have to update
-            if (m_terms.get(str).docs.containsKey(currDoc))//if i have the doc in the map of docs
-            {
-                m_terms.get(str).docs.put(currDoc, m_terms.get(str).docs.get(currDoc) + 1);//update
+        str=str.toLowerCase();
+        if(!m_StopWords.contains(str)) {
+            if (m_terms.containsKey(str)) {
+                //think what have to update
+                if (m_terms.get(str).docs.containsKey(currDoc))//if i have the doc in the map of docs
+                {
+                    m_terms.get(str).docs.put(currDoc, m_terms.get(str).docs.get(currDoc) + 1);//update
 
+                } else {
+                    m_terms.get(str).docs.put(currDoc, 1);
+                }
             } else {
-                m_terms.get(str).docs.put(currDoc, 1);
+                Map<String, Integer> docss = new HashMap<>();//jkdj
+                docss.put(currDoc, 1);
+                Term newterm = new Term(docss);
+                m_terms.put(str, newterm);
+                //newterm.docs.put(currDoc,1);//update the list of docs the term is in
             }
-        } else {
-            Map<String, Integer> docss = new HashMap<>();//jkdj
-            docss.put(currDoc, 1);
-            Term newterm = new Term(docss);
-            m_terms.put(str, newterm);
-            //newterm.docs.put(currDoc,1);//update the list of docs the term is in
         }
 
+    }
+    private void handleMakaf (String str)
+    {
+        int makaf = str.indexOf("-");
+        String part1 = str.substring(0, makaf);
+        checkAgain(part1);
+        System.out.println(part1 + "--5");
+        //addToTerm(part1);
+        String part2 = str.substring(makaf + 1, str.length());
+        if ((part2.contains("-")) && ((part2.substring(part2.indexOf('-') + 1, part2.length())).length() > 0)) {
+            String part3 = part2.substring(0, part2.indexOf('-'));
+            String part4 = part2.substring(part2.indexOf('-') + 1, part2.length());
+            //System.out.println(part3);
+            // System.out.println(part4);
+            checkAgain(part3);
+            checkAgain(part4);
+            //addToTerm(part3);
+            //addToTerm(part4);
+            str = (part1 + " " + part3 + " " + part4);
+        } else {
+            checkAgain(part2);
+            System.out.println(part2);
+            //addToTerm(part2);
+            str = part1 + " " + part2;
+        }
     }
     private boolean isNumber(String str){
         // a function to check if the term is a number
@@ -216,11 +251,6 @@ public class Parse
         }
         return false;
     }//
-    private boolean isCapital()
-    {
-        // // a function to check if the term has capital letter
-    return false;
-    }
 
     private String numbersHandler(String s) {
         //change numer from 83.333333 to 83.33
@@ -337,12 +367,12 @@ public class Parse
         //ADD 4 STRING TO FUNC RETURN NUMBER OF WORDS IN phrase
         List<String> phrase = new LinkedList<String>();
         phrase.add(s1);
-        if (!Character.isLowerCase(s2.charAt(0))&&!Character.isDigit(s2.charAt(0))) {
+        if (s2!=null&&Character.isUpperCase(s2.charAt(0))&&!Character.isDigit(s2.charAt(0))) {
             phrase.add(s2);
-            if (!Character.isLowerCase(s3.charAt(0))&&!Character.isDigit(s3.charAt(0)))
+            if (s3!=null&&Character.isUpperCase(s3.charAt(0))&&!Character.isDigit(s3.charAt(0))){
                 phrase.add(s3);
-            if (!Character.isLowerCase(s4.charAt(0))&&!Character.isDigit(s4.charAt(0)))
-                phrase.add(s4);
+                if (s4!=null&&Character.isUpperCase(s4.charAt(0))&&!Character.isDigit(s4.charAt(0)))
+                    phrase.add(s4);}
         }
         return phrase;
     }
@@ -365,25 +395,19 @@ public class Parse
         char first= str.charAt(0);
         if(first=='<'||first=='\''||first=='^')
             str=str.substring(1,str.length()-1);
-            //if(str.endsWith(".\""))
             //  str=str.substring(0,str.length()-2);
         else if(last=='.'||last=='\''||last=='^'||last=='-'||last=='>')
             str=str.substring(0,str.length()-1);
         return str;
     }
-    /**private void capitalHandler(String term){
-     * //change the format of the term in the text to the rule we have about capital
-     * // like if Adam Tal need to have 3 terms -> "adam" , "tal" and "adam tal"
-     * also NBA-> nba
-     * also if roGer-> roger
-        if (Character.isUpperCase(term.charAt(0)))
-        {
-            m_terms.
-        }
-    }*/
+    public void checkAgain(String str)
+    {
+        //is number to check for 13.3334
+        //check is percent
+        //check for '
+        //check capital letter
 
-    //we need to add 2 more rules like handling word with ' like aren't-> arent or something
-
+    }
 
 }
 
