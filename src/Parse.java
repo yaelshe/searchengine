@@ -51,7 +51,7 @@ public class Parse
 
                 if (  termsDoc[i].charAt(termsDoc[i].length()-1) == '%'||isPercent(removeExtra(termsDoc[i + 1]))) {
                     String mypercent = percent(termsDoc[i]);
-                    System.out.println(mypercent + "--1");
+                    //System.out.println(mypercent + "--1");
                     addToTerm(mypercent);
                     if (i+1<termsDoc.length){
                     if (isPercent(termsDoc[i + 1])) {
@@ -71,10 +71,10 @@ public class Parse
                             s3 = removeExtra(termsDoc[i + 1]);
                         }
                         String mydate = dateHandler(removeExtra(termsDoc[i - 1]), removeExtra(termsDoc[i]), s3,s4 );
-                        System.out.println(mydate + "--2");
+                        //System.out.println(mydate + "--2");
                         addToTerm(mydate);// to update i ....
                     } else {
-                        System.out.println(termsDoc[i] + "--3");
+                        //System.out.println(termsDoc[i] + "--3");
                         addToTerm(termsDoc[i]);
                     }
 
@@ -86,30 +86,13 @@ public class Parse
                     // save the word before and after it and also for twice -
                     termsDoc[i]=handleMakaf(termsDoc[i]);
                     addToTerm(termsDoc[i]);
-                    /**int makaf = termsDoc[i].indexOf("-");
-                    String part1 = termsDoc[i].substring(0, makaf);
-                    System.out.println(part1 + "--5");
-                    addToTerm(part1);
-                    String part2 = termsDoc[i].substring(makaf + 1, termsDoc[i].length());
-                    if ((part2.contains("-")) && ((part2.substring(part2.indexOf('-') + 1, part2.length())).length() > 0)) {
-                        String part3 = part2.substring(0, part2.indexOf('-'));
-                        String part4 = part2.substring(part2.indexOf('-') + 1, part2.length());
-                        //System.out.println(part3);
-                        // System.out.println(part4);
-                        addToTerm(part3);
-                        addToTerm(part4);
-                        termsDoc[i] = (part1 + " " + part3 + " " + part4);
-                    } else {
-                        System.out.println(part2);
-                        addToTerm(part2);
-                        termsDoc[i] = part1 + " " + part2;
-                    }
-*/
-                }
+           }
                else {
+                    //System.out.println(termsDoc[i]+1);
                     if (Character.isUpperCase(termsDoc[i].charAt(0))) {
+                        //System.out.println(termsDoc[i]+1);
                         //check if the term capital letter up to phrase of 4 words.
-                        String str1 = null, str2 = null, str3 = null, total = null;
+                        String str1 = null, str2 = null, str3 = null, total = "";
                         count = 0;
                         if (i + 1 < termsDoc.length) {
                             str1 = termsDoc[i + 1];
@@ -122,34 +105,20 @@ public class Parse
                                     count = 3;
                                 }
                             }
+                        }
                             List<String> ph = capitalTerm(termsDoc[i], str1, str2, str3);
                             flagCapital=true;// so we won't check again the same words !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                             for (int j = 0; j < ph.size(); j++) {
-                               // ph.get(j).toLowerCase();
-
                                 total = total + (ph.get(j).toLowerCase());
-                                //add term to dictionary
                             }
                             termsDoc[i]=total;
-
-
-                        }
                     }
                     else if (termsDoc[i].contains("\'")) {
                         //checks if the word has an apostrphe in the middle and
                         // save the word without it and the part before it
                         termsDoc[i]=handleApostrophe(termsDoc[i]);
-                        /**int makaf = termsDoc[i].indexOf("\'");
-                         String part1 = termsDoc[i].substring(0, makaf);
-                         System.out.println(part1 + "--6");
-                         addToTerm(part1);
-                         String part2 = termsDoc[i].replace("\'", "");
-
-                         termsDoc[i] = (part2);*/
-
                     }
-
-                    System.out.println(termsDoc[i] + "--7");
+                    //System.out.println(termsDoc[i] + "--7");
                     addToTerm(termsDoc[i]);
                     if(flagCapital)
                         i=i+count;
@@ -160,7 +129,9 @@ public class Parse
 
     private void addToTerm(String str)
     {
+
         str=str.toLowerCase();
+        //System.out.println(str);
         if(!m_StopWords.contains(str)) {
             if (m_terms.containsKey(str)) {
                 //think what have to update
@@ -186,7 +157,7 @@ public class Parse
         int makaf = str.indexOf("-");
         String part1 = str.substring(0, makaf);
         part1= checkAgain(part1);
-        System.out.println(part1 + "--5");
+        //System.out.println(part1 + "--5");
         addToTerm(part1);
         String part2 = str.substring(makaf + 1, str.length());
         if ((part2.contains("-")) && ((part2.substring(part2.indexOf('-') + 1, part2.length())).length() > 0)) {
@@ -201,7 +172,7 @@ public class Parse
             str = (part1 + " " + part3 + " " + part4);
         } else {
             part2=checkAgain(part2);
-            System.out.println(part2);
+          //  System.out.println(part2);
             addToTerm(part2);
             str = part1 + " " + part2;
 
@@ -215,7 +186,7 @@ public class Parse
             // save the word without it and the part before it
             int makaf = str.indexOf("\'");
             String part1 = str.substring(0, makaf);
-            System.out.println(part1 + "--6");
+            //System.out.println(part1 + "--6");
             addToTerm(part1);
             String part2 = str.replace("\'", "");
 
@@ -247,7 +218,7 @@ public class Parse
                 str=str.substring(0,str.length()-2);
                 //System.out.println(str+3);
             }
-            System.out.println(str.charAt(str.length()-1));
+            //System.out.println(str.charAt(str.length()-1));
             //str.charAt(str.length()-1)
             if (str.length()>1&&str.charAt(str.length()-1)=='%')
             {
@@ -402,6 +373,7 @@ public class Parse
     public  List<String> capitalTerm(String s1, String s2,String s3,String s4) {
         //ADD 4 STRING TO FUNC RETURN NUMBER OF WORDS IN phrase
         List<String> phrase = new LinkedList<String>();
+        s1=checkApo(s1);
         phrase.add(s1);
         if (s2!=null&&Character.isUpperCase(s2.charAt(0))&&!Character.isDigit(s2.charAt(0)))
         {
