@@ -5,9 +5,9 @@ import java.util.*;
 
 public class Parse
 {
-    private ArrayList<String> m_StopWords;
+    private HashSet<String> m_StopWords;
     private Map<String,Term>m_terms;
-    private ArrayList<String> beforeTerms;
+    //private ArrayList<String> beforeTerms;
     private Map<String,Document>m_documents;
     Map <String,String> Months=new HashMap<String, String>(){{
         put("january","01"); put("february","02"); put("march","03");put("april","04");put("may","05");
@@ -17,10 +17,9 @@ public class Parse
         put("oct","10");put("nov","11");put("dec","03");}};
     String currDoc;
     //private  Map<String,String> ;
-    public Parse(ArrayList<String> m_StopWords, Map<String, Term> m_terms, String beforeTerms,
-                 Map<String,Document>documents) {
-        this.m_StopWords = new ArrayList<String>(m_StopWords.size());
-        this.m_terms = new HashMap<>(m_terms);
+    public Parse(HashSet<String> m_StopWords, Map<String,Document>documents) {
+        this.m_StopWords = new HashSet<String>(m_StopWords.size());
+        this.m_terms = new HashMap<>();
         //this.beforeTerms = beforeTerms;
         m_documents=new HashMap<>(documents);
 
@@ -181,7 +180,7 @@ public class Parse
     }
     private String handleApostrophe (String str)
     {
-        if (str.contains("\'")) {
+        if (str.contains("\'")&&!m_StopWords.contains(str)) {
             //checks if the word has an apostrphe in the middle and
             // save the word without it and the part before it
             int makaf = str.indexOf("\'");
@@ -393,7 +392,7 @@ public class Parse
     }
     private String checkApo(String str)
     {
-        if(str.contains("\'")) {
+        if(str.contains("\'")&&!m_StopWords.contains(str)) {
             int makaf = str.indexOf("\'");
             String part1 = str.substring(0, makaf);
             addToTerm(part1);
