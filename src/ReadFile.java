@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -15,6 +16,7 @@ import static java.lang.System.out;
 //import java.
 public class ReadFile {
     Map <String,Document> documents ;
+    HashSet stopword ;
     String mainPath;
     List<String> filesPaths;
     List<String> allMatchesofdoc;
@@ -23,13 +25,17 @@ public class ReadFile {
 
     public ReadFile(String path)
     {
+        //this.stopword= new HashSet
 
+        String pathofstopword=path+"stop_words.txt";
+        stopword = new HashSet<>(Arrays.asList(readStopword(pathofstopword)));
+        System.out.println(stopword.contains("actually"));
+        //System.out.println(readStopword(pathofstopword));
         this.mainPath = path;
         this.filesPaths = new ArrayList<String>();
         this.sizofmydictionary=0;
         this.nextFile=0;
-
-        try (Stream<Path> paths = Files.walk(Paths.get(path))) {
+        try (Stream<Path> paths = Files.walk(Paths.get(path+"corpus"))) {
             paths.filter(Files::isRegularFile)
                     .forEach(path1 -> filesPaths.add(path1.toString()));
 
@@ -105,6 +111,7 @@ public class ReadFile {
        sizofmydictionary=documents.size();
    }}
     private String readFileAsString(String filePath) throws IOException {
+        //System.out.println(filePath);
         StringBuffer fileData = new StringBuffer();
         BufferedReader reader = new BufferedReader(
                 new FileReader(filePath));
@@ -116,6 +123,28 @@ public class ReadFile {
         }
         reader.close();
         return fileData.toString();
+    }
+    private  String [] readStopword(String S){
+        String everything="";
+        try {
+            try(BufferedReader br = new BufferedReader(new FileReader(S))) {
+                StringBuilder sb = new StringBuilder();
+                String line = br.readLine();
+
+                while (line != null) {
+                    sb.append(line);
+                    sb.append(System.lineSeparator());
+                    line = br.readLine();
+                }
+                 everything = sb.toString();
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String []stopwords=everything.split("\\s+");
+
+        return  stopwords;
     }
 
 }

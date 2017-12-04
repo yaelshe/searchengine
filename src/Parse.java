@@ -36,21 +36,28 @@ public class Parse
     }
     public void parseDoc(Document doc)
     {
+        //System.out.println(doc.getText());
         String []termsDoc=doc.getText().split("\\s+");
+
         //here we need to put a loop that goes over all the terms on the text
         //the terms are in "termsDoc"
         boolean flagCapital=false;
         int count=0;
         for (int i=0;i<termsDoc.length;i++)
         {
+            String SSS=termsDoc[i].replaceAll("-","");
+            if (termsDoc[i].length()>0&&SSS.length()>0){
+
             termsDoc[i] = removeExtra(termsDoc[i]);
+                System.out.println(termsDoc[i]+111);
+            if (termsDoc[i].length()>0){
             if (isNumber(termsDoc[i]))/////
             {
                 termsDoc[i] = numbersHandler(termsDoc[i]);// numb 25-27,21/05/1991,29-word done
-
-                if (  termsDoc[i].charAt(termsDoc[i].length()-1) == '%'||isPercent(removeExtra(termsDoc[i + 1]))) {
+                System.out.println(termsDoc[i]+112);
+                if ( i+1<termsDoc.length&& (termsDoc[i].charAt(termsDoc[i].length()-1) == '%'||isPercent(removeExtra(termsDoc[i + 1])))) {
                     String mypercent = percent(termsDoc[i]);
-                    //System.out.println(mypercent + "--1");
+                    System.out.println(mypercent + "--1");
                     addToTerm(mypercent);
                     if (i+1<termsDoc.length){
                     if (isPercent(termsDoc[i + 1])) {
@@ -58,7 +65,7 @@ public class Parse
                     }}
                 } else {
                     //System.out.println(isDate(termsDoc[i - 1], termsDoc[i + 1]));
-                    if (isDate(removeExtra(termsDoc[i - 1]), removeExtra(termsDoc[i + 1])) && !termsDoc[i].contains(".")) {//216
+                    if ((i+1<termsDoc[i].length()&&i-1>0)&&isDate(removeExtra(termsDoc[i - 1]), removeExtra(termsDoc[i + 1])) && !termsDoc[i].contains(".")) {//216
                         String s4="";
                         String s3="";
                         if (i+2<termsDoc.length)
@@ -91,7 +98,7 @@ public class Parse
                     if (Character.isUpperCase(termsDoc[i].charAt(0))) {
                         //System.out.println(termsDoc[i]+1);
                         //check if the term capital letter up to phrase of 4 words.
-                        String str1 = null, str2 = null, str3 = null, total = "";
+                        String str1 = "", str2 ="", str3 ="", total = "";
                         count = 0;
                         if (i + 1 < termsDoc.length) {
                             str1 = termsDoc[i + 1];
@@ -105,10 +112,11 @@ public class Parse
                                 }
                             }
                         }
-                            List<String> ph = capitalTerm(termsDoc[i], str1, str2, str3);
+
+                            List<String> ph = capitalTerm(removeExtra(termsDoc[i]),removeExtra(str1),removeExtra(str2),removeExtra(str3));
                             flagCapital=true;// so we won't check again the same words !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                             for (int j = 0; j < ph.size(); j++) {
-                                total = total + (ph.get(j).toLowerCase());
+                                total = total + (ph.get(j).toLowerCase())+" ";
                             }
                             termsDoc[i]=total;
                     }
@@ -122,7 +130,7 @@ public class Parse
                     if(flagCapital)
                         i=i+count;
                 }
-            }
+            }}}
         }
     }
 
@@ -374,15 +382,15 @@ public class Parse
         List<String> phrase = new LinkedList<String>();
         s1=checkApo(s1);
         phrase.add(s1);
-        if (s2!=null&&Character.isUpperCase(s2.charAt(0))&&!Character.isDigit(s2.charAt(0)))
+        if (s2.length()>0&&Character.isUpperCase(s2.charAt(0))&&!Character.isDigit(s2.charAt(0)))
         {
             s2=checkApo(s2);
             phrase.add(s2);
-            if (s3!=null&&Character.isUpperCase(s3.charAt(0))&&!Character.isDigit(s3.charAt(0)))
+            if (s3.length()>0&&Character.isUpperCase(s3.charAt(0))&&!Character.isDigit(s3.charAt(0)))
             {
                 s3=checkApo(s3);
                 phrase.add(s3);
-                if (s4!=null&&Character.isUpperCase(s4.charAt(0))&&!Character.isDigit(s4.charAt(0))){
+                if (s4.length()>0&&Character.isUpperCase(s4.charAt(0))&&!Character.isDigit(s4.charAt(0))){
                     s4=checkApo(s4);
                     phrase.add(s4);
                 }
@@ -415,13 +423,14 @@ public class Parse
     public static String removeExtra(String str)
     {
         str=str.replaceAll("[,$#!?*(){}\":;+=|\\[\\]]","");
+        if (str.length()>0){
         char last=str.charAt(str.length()-1);
         char first= str.charAt(0);
         if(first=='<'||first=='\''||first=='^')
             str=str.substring(1,str.length()-1);
             //  str=str.substring(0,str.length()-2);
         else if(last=='.'||last=='\''||last=='^'||last=='-'||last=='>')
-            str=str.substring(0,str.length()-1);
+            str=str.substring(0,str.length()-1);}
         return str;
     }
     public String checkAgain(String str)
