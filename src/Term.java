@@ -28,7 +28,7 @@ public class Term
     public String getnumOfDocIDF(){
         String num="";
         num=Integer.toString(numOfDocIDF);
-        return num; 
+        return num;
     }
 
 }
