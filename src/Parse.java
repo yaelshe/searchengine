@@ -182,7 +182,8 @@ public class Parse
             } else {
                 Map<String, Integer> docss = new HashMap<>();//jkdj
                 docss.put(currDoc, 1);
-                Term newterm = new Term(docss);
+                Term newterm = new Term(str,docss);
+
                 m_terms.put(str, newterm);
                 m_documents.get(currDoc).docLength++;//
                 m_documents.get(currDoc).max_tf=m_terms.get(str).docs.get(currDoc);
