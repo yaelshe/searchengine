@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.nio.charset.CharacterCodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -45,9 +46,10 @@ public class Parse
         for (int i=0;i<termsDoc.length;i++)
         {
             String SSS=termsDoc[i].replaceAll("-","");
+            termsDoc[i] = removeExtra(termsDoc[i]);
             if (termsDoc[i].length()>0&&SSS.length()>0){
 
-            termsDoc[i] = removeExtra(termsDoc[i]);
+
             if (termsDoc[i].length()>0){
             if (isNumber(termsDoc[i]))/////
             {
@@ -72,7 +74,7 @@ public class Parse
                     {
                         s3 = removeExtra(termsDoc[i + 1]);
                     }
-                    if ((i+1<termsDoc[i].length()||i-1>0)&&isDate(s1, s3) && !termsDoc[i].contains(".")) {//216
+                    if ((i+1<termsDoc[i].length()||i-1>0)&&(isDate(s1, s3) && !termsDoc[i].contains("."))) {//216
                         String s4="";
                         //System.out.println(termsDoc[i]);
 
@@ -80,7 +82,7 @@ public class Parse
                         {
                             s4 = removeExtra(termsDoc[i + 2]);
                         }
-                        String mydate = dateHandler(s1, removeExtra(termsDoc[i]), s3,s4 );
+                        String mydate = dateHandler(s1, termsDoc[i], s3,s4 );
                         if (mydate.length()>7)
                         {
                             if (Months.containsKey(s1))
@@ -158,7 +160,7 @@ public class Parse
     {
 
         str=str.toLowerCase();
-
+       // System.out.println(str);
         if(!m_StopWords.contains(str)) {
             //System.out.println(str);
             if (m_terms.containsKey(str)) {
@@ -264,6 +266,9 @@ public class Parse
             else
             {
                 //System.out.println(str+1);
+                if (str.charAt(str.length()-1)=='f'||str.charAt(str.length()-1)=='d'){
+                    return false;
+                }
                 double d = Double.parseDouble(str);
             }
         }
@@ -354,7 +359,13 @@ public class Parse
         String year="";
         if (Months.containsKey(s3.toLowerCase()))
         {
-            int intday = Integer.parseInt(s2);
+            int intday=0;
+            try {
+                intday = Integer.parseInt(s2);
+            }
+            catch(NumberFormatException e){
+                System.out.println("s2 is "+s2);
+        }
             day = cmpToDay(intday);
             month=Months.get(s3.toLowerCase());
             if (isNumber(s4))
@@ -445,14 +456,22 @@ public class Parse
     public static String removeExtra(String str)
     {
         str=str.replaceAll("[,$#!?*(){}\":;+=|\\[\\]]","");
-        if (str.length()>0){
-        char last=str.charAt(str.length()-1);
-        char first= str.charAt(0);
-        if(first=='<'||first=='\''||first=='^')
-            str=str.substring(1,str.length()-1);
-            //  str=str.substring(0,str.length()-2);
-        else if(last=='.'||last=='\''||last=='^'||last=='-'||last=='>')
-            str=str.substring(0,str.length()-1);}
+        if (str.length()>0) {
+            char last = str.charAt(str.length() - 1);
+            char first = str.charAt(0);
+            if (first == '<' || first == '\'' || first == '^')
+                if(str.length()>1) {
+                    str = str.substring(1, str.length() - 1);
+                }
+                else{
+                    str="";}
+                //  str=str.substring(0,str.length()-2);
+            else if(str.length()>0){
+
+                if (last == '.' || last == '\'' || last == '^' || last == '-' || last == '>')
+                    str = str.substring(0, str.length() - 1);
+            }
+        }
         return str;
     }
     public String checkAgain(String str)
