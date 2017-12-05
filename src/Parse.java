@@ -85,7 +85,7 @@ public class Parse
                         {
                             if (Months.containsKey(s1))
                             {
-                                i=i++;
+                                i++;
                             }else
                             {
                                 i=i+2;
@@ -94,7 +94,7 @@ public class Parse
                         {
                             if (!Months.containsKey(s1))
                             {
-                                i=i++;
+                                i++;
                             }
                         }
                         //System.out.println(mydate + "--2");
@@ -160,21 +160,31 @@ public class Parse
         str=str.toLowerCase();
 
         if(!m_StopWords.contains(str)) {
-            System.out.println(str);
+            //System.out.println(str);
             if (m_terms.containsKey(str)) {
                 //think what have to update
                 if (m_terms.get(str).docs.containsKey(currDoc))//if i have the doc in the map of docs
                 {
                     m_terms.get(str).docs.put(currDoc, m_terms.get(str).docs.get(currDoc) + 1);//update
-
+                    m_documents.get(currDoc).docLength++;
+                    if (m_terms.get(str).docs.get(currDoc)>=m_documents.get(currDoc).max_tf)
+                    {
+                        m_documents.get(currDoc).max_tf=m_terms.get(str).docs.get(currDoc);
+                        m_documents.get(currDoc).mostCommWord=str;
+                    }
                 } else {
                     m_terms.get(str).docs.put(currDoc, 1);
+                    m_terms.get(str).numOfDocIDF++;
+                    m_documents.get(currDoc).docLength++;
                 }
             } else {
                 Map<String, Integer> docss = new HashMap<>();//jkdj
                 docss.put(currDoc, 1);
                 Term newterm = new Term(docss);
                 m_terms.put(str, newterm);
+                m_documents.get(currDoc).docLength++;//
+                m_documents.get(currDoc).max_tf=m_terms.get(str).docs.get(currDoc);
+                m_documents.get(currDoc).mostCommWord=str;
                 //newterm.docs.put(currDoc,1);//update the list of docs the term is in
             }
         }

@@ -29,7 +29,7 @@ public class ReadFile {
 
         String pathofstopword=path+"stop_words.txt";
         stopword = new HashSet<>(Arrays.asList(readStopword(pathofstopword)));
-        System.out.println(stopword.contains("actually"));
+        //System.out.println(stopword.contains("actually"));
         //System.out.println(readStopword(pathofstopword));
         this.mainPath = path;
         this.filesPaths = new ArrayList<String>();
@@ -102,7 +102,7 @@ public class ReadFile {
                    first = allMatchesofdoc.get(i).indexOf("<DOCNO>");
                    last = allMatchesofdoc.get(i).indexOf("</DOCNO>");
                    String mydocno = allMatchesofdoc.get(i).substring(first+7,last);
-                   Document S = new Document(mytext, 0, mytext.length(), "ldkjf");
+                   Document S = new Document(mytext, 0, 0, "ldkjf");
                    documents.put(mydocno, S);
                    //System.out.println(mydocno);
                }
