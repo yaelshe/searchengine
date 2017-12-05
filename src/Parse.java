@@ -18,10 +18,10 @@ public class Parse
     String currDoc;
     //private  Map<String,String> ;
     public Parse(HashSet<String> m_StopWords, Map<String,Document>documents) {
-        this.m_StopWords = new HashSet<String>(m_StopWords.size());
+        this.m_StopWords = m_StopWords;
         this.m_terms = new HashMap<>();
-        //this.beforeTerms = beforeTerms;
         m_documents=new HashMap<>(documents);
+
 
     }
     public void ParseAll()
@@ -36,7 +36,6 @@ public class Parse
     }
     public void parseDoc(Document doc)
     {
-        //System.out.println(doc.getText());
         String []termsDoc=doc.getText().split("\\s+");
 
         //here we need to put a loop that goes over all the terms on the text
@@ -49,34 +48,55 @@ public class Parse
             if (termsDoc[i].length()>0&&SSS.length()>0){
 
             termsDoc[i] = removeExtra(termsDoc[i]);
-                System.out.println(termsDoc[i]+111);
             if (termsDoc[i].length()>0){
             if (isNumber(termsDoc[i]))/////
             {
                 termsDoc[i] = numbersHandler(termsDoc[i]);// numb 25-27,21/05/1991,29-word done
-                System.out.println(termsDoc[i]+112);
-                if ( i+1<termsDoc.length&& (termsDoc[i].charAt(termsDoc[i].length()-1) == '%'||isPercent(removeExtra(termsDoc[i + 1])))) {
+                if (  termsDoc[i].charAt(termsDoc[i].length()-1) == '%'|| (i+1<termsDoc.length && isPercent(removeExtra(termsDoc[i + 1])))) {
                     String mypercent = percent(termsDoc[i]);
-                    System.out.println(mypercent + "--1");
                     addToTerm(mypercent);
                     if (i+1<termsDoc.length){
-                    if (isPercent(termsDoc[i + 1])) {
+                    if (isPercent(removeExtra(termsDoc[i + 1]))) {
                         i++;
+                        //System.out.println(1);
                     }}
                 } else {
                     //System.out.println(isDate(termsDoc[i - 1], termsDoc[i + 1]));
-                    if ((i+1<termsDoc[i].length()&&i-1>0)&&isDate(removeExtra(termsDoc[i - 1]), removeExtra(termsDoc[i + 1])) && !termsDoc[i].contains(".")) {//216
+                    String s1="";
+                    String s3="";
+                    if (i-1>=0)
+                    {
+                        s1 = removeExtra(termsDoc[i -1]);
+                    }
+                    if (i+1<termsDoc.length)
+                    {
+                        s3 = removeExtra(termsDoc[i + 1]);
+                    }
+                    if ((i+1<termsDoc[i].length()||i-1>0)&&isDate(s1, s3) && !termsDoc[i].contains(".")) {//216
                         String s4="";
-                        String s3="";
+                        //System.out.println(termsDoc[i]);
+
                         if (i+2<termsDoc.length)
                         {
                             s4 = removeExtra(termsDoc[i + 2]);
                         }
-                        if (i+1<termsDoc.length)
+                        String mydate = dateHandler(s1, removeExtra(termsDoc[i]), s3,s4 );
+                        if (mydate.length()>7)
                         {
-                            s3 = removeExtra(termsDoc[i + 1]);
+                            if (Months.containsKey(s1))
+                            {
+                                i=i++;
+                            }else
+                            {
+                                i=i+2;
+                            }
+                        }else
+                        {
+                            if (!Months.containsKey(s1))
+                            {
+                                i=i++;
+                            }
                         }
-                        String mydate = dateHandler(removeExtra(termsDoc[i - 1]), removeExtra(termsDoc[i]), s3,s4 );
                         //System.out.println(mydate + "--2");
                         addToTerm(mydate);// to update i ....
                     } else {
@@ -138,8 +158,9 @@ public class Parse
     {
 
         str=str.toLowerCase();
-        //System.out.println(str);
+
         if(!m_StopWords.contains(str)) {
+            //System.out.println(str);
             if (m_terms.containsKey(str)) {
                 //think what have to update
                 if (m_terms.get(str).docs.containsKey(currDoc))//if i have the doc in the map of docs
@@ -170,8 +191,6 @@ public class Parse
         if ((part2.contains("-")) && ((part2.substring(part2.indexOf('-') + 1, part2.length())).length() > 0)) {
             String part3 = part2.substring(0, part2.indexOf('-'));
             String part4 = part2.substring(part2.indexOf('-') + 1, part2.length());
-            //System.out.println(part3);
-            // System.out.println(part4);
             part3=checkAgain(part3);
             part4=checkAgain(part4);
             addToTerm(part3);
@@ -258,8 +277,7 @@ public class Parse
     }
     private boolean isPercent(String s)
     {
-        // a function to check if the term is part of a percent
-        if (s=="percent" || s == "percentage")
+        if (s.toLowerCase().equals("percent") || s.equals("percentage"))
         {
             return true;
         }
@@ -318,12 +336,6 @@ public class Parse
             return (s + " percent");
 
         }
-        /**if(s.indexOf("percentage") != -1)
-        {
-            s = s.replaceAll("percentage","percent");
-            //System.out.println(s);
-        }*/
-        //return s;
     }
     public String dateHandler(String s1,String s2,String s3,String s4){//(termsDoc[i - 1], termsDoc[i], termsDoc[i + 1], termsDoc[i + 2])
         //change the format of the date in the text to the rule we have
