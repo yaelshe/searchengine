@@ -160,7 +160,7 @@ public class Parse
         str=str.toLowerCase();
 
         if(!m_StopWords.contains(str)) {
-            //System.out.println(str);
+            System.out.println(str);
             if (m_terms.containsKey(str)) {
                 //think what have to update
                 if (m_terms.get(str).docs.containsKey(currDoc))//if i have the doc in the map of docs
