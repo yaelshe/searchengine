@@ -112,7 +112,7 @@ public class Parse
 
                 }
 
-            } else {
+            } else if(curTerm.length()>0){
                 if (curTerm.contains("-")) {
                     //checks if the word has an - in the middle and
                     // save the word before and after it and also for twice -
@@ -149,7 +149,12 @@ public class Parse
                         }
                         ph.clear();
                         curTerm = total;
-                    } else if (!m_StopWords.contains(curTerm)) {
+                        if (flagCapital) {
+                            i = i + count - 1;
+                            //count = 0;
+                            flagCapital = false;
+                        }
+                    } else if (!m_StopWords.contains(curTerm.toLowerCase())) {
                         if (curTerm.contains("\'")) {
                             //checks if the word has an apostrphe in the middle and
                             // save the word without it and the part before it
@@ -157,13 +162,8 @@ public class Parse
                         }
 
                         //System.out.println(termsDoc[i] + "--7");
-                        if (curTerm != " "&&curTerm!="") {
+                        if (curTerm!= " "&&curTerm.length()>0) {
                             addToTerm(curTerm);
-                        }
-                        if (flagCapital) {
-                            i = i + count - 1;
-                            count = 0;
-                            flagCapital = false;
                         }
                     }
                 }
@@ -175,7 +175,7 @@ public class Parse
     {
         str=str.toLowerCase();
         //System.out.println(str+"add to term");
-        if(str!=" "&&str!="") {
+        if(str!=" "&&str.length()>0) {
             if (!m_StopWords.contains(str)) {
                 //System.out.println(str);
                 if (m_terms.containsKey(str)) {
@@ -220,13 +220,18 @@ public class Parse
         if ((part2.contains("-")) && ((part2.substring(part2.indexOf('-') + 1, part2.length())).length() > 0)) {
             String part3 = part2.substring(0, part2.indexOf('-'));
             String part4 = part2.substring(part2.indexOf('-') + 1, part2.length());
-            part3=checkAgain(part3);
-            part4=checkAgain(part4);
+            if(part3.length()>1)
+                part3=checkAgain(part3);
+            if(part4.length()>1)
+                part4=checkAgain(part4);
             addToTerm(part3);
             addToTerm(part4);
             str = (part1 + " " + part3 + " " + part4);
-        } else {
-            part2=checkAgain(part2);
+        } else
+        {
+            if(part2.length()>1)
+                part2=checkAgain(part2);
+            //part2=checkAgain(part2);
           //  System.out.println(part2);
             addToTerm(part2);
             str = part1 + " " + part2;
@@ -236,7 +241,7 @@ public class Parse
     }
     private String handleApostrophe (String str)
     {
-        if (str.contains("\'")&&!m_StopWords.contains(str)) {
+        if (str.contains("\'")&&!m_StopWords.contains(str.toLowerCase())) {
             //checks if the word has an apostrphe in the middle and
             // save the word without it and the part before it
             int makaf = str.indexOf("\'");
