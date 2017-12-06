@@ -14,11 +14,11 @@ public class Term
 
     }
     public String toString(Term term)
-    {
+    {//term #numberofDocs &docname-number docname-number....
         String termStr="";
         termStr=term.get_term()+" ";
-        termStr=termStr+"#"+getnumOfDocIDF();
-        termStr=termStr;
+        termStr=termStr+"#"+getnumOfDocIDF()+" ";
+        termStr=termStr+"&"+get_docs();
         return termStr;
     }
 
@@ -29,6 +29,16 @@ public class Term
         String num="";
         num=Integer.toString(numOfDocIDF);
         return num;
+    }
+    public String get_docs(){
+        String str="";
+        for (String docnum: docs.keySet()){
+
+            String key =docnum;
+            String value =docs.get(docnum).toString();
+            System.out.print(key + "-" + value+" ");
+        }
+        return str;
     }
 
 }
