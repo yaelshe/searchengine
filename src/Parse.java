@@ -10,6 +10,7 @@ public class Parse
     private Map<String,Term>m_terms;
     //private ArrayList<String> beforeTerms;
     private Map<String,Document>m_documents;
+
     Map <String,String> Months=new HashMap<String, String>(){{
         put("january","01"); put("february","02"); put("march","03");put("april","04");put("may","05");
         put("june","06");put("july","07");put("august","08");put("september","09");put("october","10");
@@ -22,35 +23,37 @@ public class Parse
         this.m_StopWords = m_StopWords;
         this.m_terms = new HashMap<>();
         m_documents=new HashMap<>(documents);
-
-
     }
     public void ParseAll()
     {
-        for (Map.Entry<String,Document> entry : m_documents.entrySet()) {
-
-            Document value = entry.getValue();
-            currDoc= entry.getKey();
-            parseDoc(value);
-            // do stuff
+        //int i=0;
+       for (Map.Entry<String,Document> entry : m_documents.entrySet()) {
+          // if(i<1){
+               Document value = entry.getValue();
+               currDoc = entry.getKey();
+               //System.out.println(currDoc+"curr doc in ParseAll");
+               parseDoc(value);
+            //   i++;
+               // do stuff
+           //}
+           //else
+            //   break;
         }
+
     }
     public void parseDoc(Document doc)
     {
         String []termsDoc=doc.getText().split("\\s+");
-
-        //here we need to put a loop that goes over all the terms on the text
-        //the terms are in "termsDoc"
+        System.out.println(currDoc+"i split the text of it");
         boolean flagCapital=false;
         int count=0;
-        for (int i=0;i<termsDoc.length;i++)
+        //for (int i=0;i<termsDoc.length;i++)
+        for(int i=0;i<termsDoc.length;i++)
         {
             count=0;
             String SSS=termsDoc[i].replaceAll("-","");
             termsDoc[i] = removeExtra(termsDoc[i]);
             if (termsDoc[i].length()>0&&SSS.length()>0){
-
-
             if (termsDoc[i].length()>0){
             if (isNumber(termsDoc[i]))/////
             {
@@ -139,12 +142,18 @@ public class Parse
                             List<String> ph = capitalTerm(termsDoc[i],removeExtra(str1),removeExtra(str2),removeExtra(str3));
                             flagCapital=true;// so we won't check again the same words !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                             count=ph.size();
-                            for (int j = 0; j < ph.size(); j++) {
-                                addToTerm(ph.get(j).toLowerCase());
-                                total = total + (ph.get(j).toLowerCase())+" ";
-
+                            if(ph.size()==1) {
+                                total = (ph.get(0).toLowerCase());
                             }
-                            termsDoc[i]=total;
+                            else {
+                                for (int j = 0; j < ph.size(); j++) {
+                                    addToTerm(ph.get(j).toLowerCase());
+                                    total = total + (ph.get(j).toLowerCase()) + " ";
+
+                                }
+                            }
+                            ph.clear();
+                            termsDoc[i] = total;
                     }
                     else if (termsDoc[i].contains("\'")) {
                         //checks if the word has an apostrphe in the middle and
@@ -156,6 +165,7 @@ public class Parse
                     if(flagCapital) {
                         i = i + count - 1;
                         count=0;
+                        flagCapital=false;
                     }
                 }
             }}}
@@ -164,9 +174,8 @@ public class Parse
 
     private void addToTerm(String str)
     {
-
         str=str.toLowerCase();
-       // System.out.println(str);
+        //System.out.println(str+"add to term");
         if(!m_StopWords.contains(str)) {
             //System.out.println(str);
             if (m_terms.containsKey(str)) {
@@ -186,7 +195,7 @@ public class Parse
                     m_documents.get(currDoc).docLength++;
                 }
             } else {
-                System.out.println(str+"  add to term");
+
                 Map<String, Integer> docss = new HashMap<>();//jkdj
                 docss.put(currDoc, 1);
                 Term newterm = new Term(str,docss);

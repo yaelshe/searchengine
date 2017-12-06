@@ -92,8 +92,6 @@ public class ReadFile {
 
        for(int i=sizofmydictionary;i<allMatchesofdoc.size();i++)
        {
-
-
            if (allMatchesofdoc.get(i).contains("<TEXT>")){
                int first = allMatchesofdoc.get(i).indexOf("<TEXT>");
                int last = allMatchesofdoc.get(i).indexOf("</TEXT>");
@@ -102,7 +100,7 @@ public class ReadFile {
                    first = allMatchesofdoc.get(i).indexOf("<DOCNO>");
                    last = allMatchesofdoc.get(i).indexOf("</DOCNO>");
                    String mydocno = allMatchesofdoc.get(i).substring(first+7,last);
-                   Document S = new Document(mytext, 0, 0, "ldkjf");
+                   Document S = new Document(mydocno,mytext, 0, 0, "ldkjf");
                    documents.put(mydocno, S);
                    //System.out.println(mydocno);
                }
