@@ -50,6 +50,7 @@ public class Parse
         //for (int i=0;i<termsDoc.length;i++)
         for(int i=0;i<termsDoc.length;i++)
         {
+            String curTerm= termsDoc[i];
             count=0;
             String SSS=termsDoc[i].replaceAll("-","");
             termsDoc[i] = removeExtra(termsDoc[i]);
@@ -58,7 +59,7 @@ public class Parse
             if (isNumber(termsDoc[i]))/////
             {
                 termsDoc[i] = numbersHandler(termsDoc[i]);// numb 25-27,21/05/1991,29-word done
-                if (  termsDoc[i].charAt(termsDoc[i].length()-1) == '%'|| (i+1<termsDoc.length && isPercent(removeExtra(termsDoc[i + 1])))) {
+                if (termsDoc[i].charAt(termsDoc[i].length()-1) == '%'|| (i+1<termsDoc.length && isPercent(removeExtra(termsDoc[i + 1])))) {
                     String mypercent = percent(termsDoc[i]);
                     addToTerm(mypercent);
                     if (i+1<termsDoc.length){
@@ -124,7 +125,7 @@ public class Parse
                     if (Character.isUpperCase(termsDoc[i].charAt(0))) {
                         //System.out.println(termsDoc[i]+1);
                         //check if the term capital letter up to phrase of 4 words.
-                        String str1 = "", str2 ="", str3 ="", total = "";
+                        String str1 = "", str2 = "", total = "";
                         count = 0;
                         if (i + 1 < termsDoc.length) {
                             str1 = termsDoc[i + 1];
@@ -132,40 +133,39 @@ public class Parse
                             if (i + 2 < termsDoc.length) {
                                 str2 = termsDoc[i + 2];
                                 //count = 2;
-                                if (i + 3 < termsDoc.length) {
-                                    str3 = termsDoc[i + 3];
-                                    //count = 3;
-                                }
                             }
                         }
 
-                            List<String> ph = capitalTerm(termsDoc[i],removeExtra(str1),removeExtra(str2),removeExtra(str3));
-                            flagCapital=true;// so we won't check again the same words !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                            count=ph.size();
-                            if(ph.size()==1) {
-                                total = (ph.get(0).toLowerCase());
-                            }
-                            else {
-                                for (int j = 0; j < ph.size(); j++) {
-                                    addToTerm(ph.get(j).toLowerCase());
-                                    total = total + (ph.get(j).toLowerCase()) + " ";
+                        List<String> ph = capitalTerm(termsDoc[i], removeExtra(str1), removeExtra(str2));
+                        flagCapital = true;// so we won't check again the same words !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        count = ph.size();
+                        if (ph.size() == 1) {
+                            total = (ph.get(0).toLowerCase());
+                        } else {
+                            for (int j = 0; j < ph.size(); j++) {
+                                addToTerm(ph.get(j).toLowerCase());
+                                total = total + (ph.get(j).toLowerCase()) + " ";
 
-                                }
                             }
-                            ph.clear();
-                            termsDoc[i] = total;
-                    }
-                    else if (termsDoc[i].contains("\'")) {
-                        //checks if the word has an apostrphe in the middle and
-                        // save the word without it and the part before it
-                        termsDoc[i]=handleApostrophe(termsDoc[i]);
-                    }
-                    //System.out.println(termsDoc[i] + "--7");
-                    addToTerm(termsDoc[i]);
-                    if(flagCapital) {
-                        i = i + count - 1;
-                        count=0;
-                        flagCapital=false;
+                        }
+                        ph.clear();
+                        termsDoc[i] = total;
+                    } else if (!m_StopWords.contains(termsDoc[i])) {
+                        if (termsDoc[i].contains("\'")) {
+                            //checks if the word has an apostrphe in the middle and
+                            // save the word without it and the part before it
+                            termsDoc[i] = handleApostrophe(termsDoc[i]);
+                        }
+
+                        //System.out.println(termsDoc[i] + "--7");
+                        if (termsDoc[i] != " ") {
+                            addToTerm(termsDoc[i]);
+                        }
+                        if (flagCapital) {
+                            i = i + count - 1;
+                            count = 0;
+                            flagCapital = false;
+                        }
                     }
                 }
             }}}
@@ -176,35 +176,36 @@ public class Parse
     {
         str=str.toLowerCase();
         //System.out.println(str+"add to term");
-        if(!m_StopWords.contains(str)) {
-            //System.out.println(str);
-            if (m_terms.containsKey(str)) {
-                //think what have to update
-                if (m_terms.get(str).docs.containsKey(currDoc))//if i have the doc in the map of docs
-                {
-                    m_terms.get(str).docs.put(currDoc, m_terms.get(str).docs.get(currDoc) + 1);//update
-                    m_documents.get(currDoc).docLength++;
-                    if (m_terms.get(str).docs.get(currDoc)>=m_documents.get(currDoc).max_tf)
+        if(str!=" ") {
+            if (!m_StopWords.contains(str)) {
+                //System.out.println(str);
+                if (m_terms.containsKey(str)) {
+                    //think what have to update
+                    if (m_terms.get(str).docs.containsKey(currDoc))//if i have the doc in the map of docs
                     {
-                        m_documents.get(currDoc).max_tf=m_terms.get(str).docs.get(currDoc);
-                        m_documents.get(currDoc).mostCommWord=str;
+                        m_terms.get(str).docs.put(currDoc, m_terms.get(str).docs.get(currDoc) + 1);//update
+                        m_documents.get(currDoc).docLength++;
+                        if (m_terms.get(str).docs.get(currDoc) >= m_documents.get(currDoc).max_tf) {
+                            m_documents.get(currDoc).max_tf = m_terms.get(str).docs.get(currDoc);
+                            m_documents.get(currDoc).mostCommWord = str;
+                        }
+                    } else {
+                        m_terms.get(str).docs.put(currDoc, 1);
+                        m_terms.get(str).numOfDocIDF++;
+                        m_documents.get(currDoc).docLength++;
                     }
                 } else {
-                    m_terms.get(str).docs.put(currDoc, 1);
-                    m_terms.get(str).numOfDocIDF++;
-                    m_documents.get(currDoc).docLength++;
+
+                    Map<String, Integer> docss = new HashMap<>();//jkdj
+                    docss.put(currDoc, 1);
+                    Term newterm = new Term(str, docss);
+
+                    m_terms.put(str, newterm);
+                    m_documents.get(currDoc).docLength++;//
+                    m_documents.get(currDoc).max_tf = m_terms.get(str).docs.get(currDoc);
+                    m_documents.get(currDoc).mostCommWord = str;
+                    newterm.docs.put(currDoc, 1);//update the list of docs the term is in
                 }
-            } else {
-
-                Map<String, Integer> docss = new HashMap<>();//jkdj
-                docss.put(currDoc, 1);
-                Term newterm = new Term(str,docss);
-
-                m_terms.put(str, newterm);
-                m_documents.get(currDoc).docLength++;//
-                m_documents.get(currDoc).max_tf=m_terms.get(str).docs.get(currDoc);
-                m_documents.get(currDoc).mostCommWord=str;
-                newterm.docs.put(currDoc,1);//update the list of docs the term is in
             }
         }
 
@@ -255,45 +256,40 @@ public class Parse
        // System.out.println(str);
         if (str.length()==0){
             return false;}
-        if (str.substring(1,str.length()).contains("-"))
-        {
+        if(Character.isDigit(str.charAt(0))||(str.length()>=2&&Character.isDigit(str.charAt(1))&&str.charAt(0)=='-')) {
+            if (str.substring(1, str.length()).contains("-")) {
 
-            return false;
-        }
-        try
-        {
-            /**
-             * if (i have -) done
-             * 122,222 done
-             */
-            str=str.replaceAll(",","");
-           // System.out.println(str+21);
-            if (str.length()>2&&str.substring(str.length()-2)=="th")
-            {
-                str=str.substring(0,str.length()-2);
-                //System.out.println(str+3);
+                return false;
             }
-            //System.out.println(str.charAt(str.length()-1));
-            //str.charAt(str.length()-1)
-            if (str.length()>1&&str.charAt(str.length()-1)=='%')
-            {
-                //System.out.println(str+222);
-                double d = Double.parseDouble(str.substring(0, str.length() - 1));//klajfd;
-            }
-            else
-            {
-                //System.out.println(str+1);
-                if (str.charAt(str.length()-1)=='f'||str.charAt(str.length()-1)=='d'){
-                    return false;
+            try {
+                /**
+                 * if (i have -) done
+                 * 122,222 done
+                 */
+                str = str.replaceAll(",", "");
+                // System.out.println(str+21);
+                if (str.length() > 2 && str.substring(str.length() - 2) == "th") {
+                    str = str.substring(0, str.length() - 2);
+                    //System.out.println(str+3);
                 }
-                double d = Double.parseDouble(str);
+                //System.out.println(str.charAt(str.length()-1));
+                //str.charAt(str.length()-1)
+                if (str.length() > 1 && str.charAt(str.length() - 1) == '%') {
+                    //System.out.println(str+222);
+                    double d = Double.parseDouble(str.substring(0, str.length() - 1));//klajfd;
+                } else {
+                    //System.out.println(str+1);
+                    if (str.charAt(str.length() - 1) == 'f' || str.charAt(str.length() - 1) == 'd') {
+                        return false;
+                    }
+                    double d = Double.parseDouble(str);
+                }
+            } catch (NumberFormatException nfe) {
+                return false;
             }
+            return true;
         }
-        catch(NumberFormatException nfe)
-        {
-            return false;
-        }
-        return true;
+        return false;
         }//
     private boolean isDate(String s1,String s2)
     {
@@ -427,7 +423,7 @@ public class Parse
         }
 
     }
-    public  List<String> capitalTerm(String s1, String s2,String s3,String s4) {
+    public  List<String> capitalTerm(String s1, String s2,String s3) {
         //ADD 4 STRING TO FUNC RETURN NUMBER OF WORDS IN phrase
         List<String> phrase = new LinkedList<String>();
         s1=checkApo(s1);
@@ -440,10 +436,6 @@ public class Parse
             {
                 s3=checkApo(s3);
                 phrase.add(s3);
-                if (s4.length()>0&&Character.isUpperCase(s4.charAt(0))&&!Character.isDigit(s4.charAt(0))){
-                    s4=checkApo(s4);
-                    phrase.add(s4);
-                }
                     }
         }
         return phrase;
@@ -498,18 +490,12 @@ public class Parse
         {
             str=checkApo(str);
         }
-        else if(isNumber(str))
-        {
-            str=numbersHandler(str);
-            if (str.charAt(str.length()-1)=='%'){
-                str=percent(str);
+        else if(isNumber(str)) {
+            str = numbersHandler(str);
+            if (str.charAt(str.length() - 1) == '%') {
+                str = percent(str);
             }
         }
-
-
-        //is number to check for 13.3334
-        //check is percent
-        //check for '
     return str;
     }
 
