@@ -50,17 +50,16 @@ public class Parse
         //for (int i=0;i<termsDoc.length;i++)
         for(int i=0;i<termsDoc.length;i++)
         {
-            String curTerm= termsDoc[i];
             count=0;
             String SSS=termsDoc[i].replaceAll("-","");
-            termsDoc[i] = removeExtra(termsDoc[i]);
-            if (termsDoc[i].length()>0&&SSS.length()>0){
-            if (termsDoc[i].length()>0){
-            if (isNumber(termsDoc[i]))/////
+            String curTerm= removeExtra(termsDoc[i]);
+            if (curTerm.length()>0&&SSS.length()>0){
+            if (curTerm.length()>0){
+            if (isNumber(curTerm))/////
             {
-                termsDoc[i] = numbersHandler(termsDoc[i]);// numb 25-27,21/05/1991,29-word done
-                if (termsDoc[i].charAt(termsDoc[i].length()-1) == '%'|| (i+1<termsDoc.length && isPercent(removeExtra(termsDoc[i + 1])))) {
-                    String mypercent = percent(termsDoc[i]);
+                curTerm = numbersHandler(curTerm);// numb 25-27,21/05/1991,29-word done
+                if (curTerm.charAt(curTerm.length()-1) == '%'|| (i+1<termsDoc.length && isPercent(removeExtra(termsDoc[i + 1])))) {
+                    String mypercent = percent(curTerm);
                     addToTerm(mypercent);
                     if (i+1<termsDoc.length){
                     if (isPercent(removeExtra(termsDoc[i + 1]))) {
@@ -79,7 +78,7 @@ public class Parse
                     {
                         s3 = removeExtra(termsDoc[i + 1]);
                     }
-                    if ((i+1<termsDoc[i].length()||i-1>0)&&(isDate(s1, s3) && !termsDoc[i].contains("."))) {//216
+                    if ((i+1<curTerm.length()||i-1>0)&&(isDate(s1, s3) && !curTerm.contains("."))) {//216
                         String s4="";
                         //System.out.println(termsDoc[i]);
 
@@ -87,7 +86,7 @@ public class Parse
                         {
                             s4 = removeExtra(termsDoc[i + 2]);
                         }
-                        String mydate = dateHandler(s1, termsDoc[i], s3,s4 );
+                        String mydate = dateHandler(s1, curTerm, s3,s4 );
                         if (mydate.length()>7)
                         {
                             if (Months.containsKey(s1))
@@ -108,21 +107,21 @@ public class Parse
                         addToTerm(mydate);// to update i ....
                     } else {
                         //System.out.println(termsDoc[i] + "--3");
-                        addToTerm(termsDoc[i]);
+                        addToTerm(curTerm);
                     }
 
                 }
 
             } else {
-                if (termsDoc[i].contains("-")) {
+                if (curTerm.contains("-")) {
                     //checks if the word has an - in the middle and
                     // save the word before and after it and also for twice -
-                    termsDoc[i]=handleMakaf(termsDoc[i]);
-                    addToTerm(termsDoc[i]);
+                    curTerm=handleMakaf(curTerm);
+                    addToTerm(curTerm);
            }
                else {
                     //System.out.println(termsDoc[i]+1);
-                    if (Character.isUpperCase(termsDoc[i].charAt(0))) {
+                    if (Character.isUpperCase(curTerm.charAt(0))) {
                         //System.out.println(termsDoc[i]+1);
                         //check if the term capital letter up to phrase of 4 words.
                         String str1 = "", str2 = "", total = "";
@@ -136,7 +135,7 @@ public class Parse
                             }
                         }
 
-                        List<String> ph = capitalTerm(termsDoc[i], removeExtra(str1), removeExtra(str2));
+                        List<String> ph = capitalTerm(curTerm, removeExtra(str1), removeExtra(str2));
                         flagCapital = true;// so we won't check again the same words !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                         count = ph.size();
                         if (ph.size() == 1) {
@@ -149,17 +148,17 @@ public class Parse
                             }
                         }
                         ph.clear();
-                        termsDoc[i] = total;
-                    } else if (!m_StopWords.contains(termsDoc[i])) {
-                        if (termsDoc[i].contains("\'")) {
+                        curTerm = total;
+                    } else if (!m_StopWords.contains(curTerm)) {
+                        if (curTerm.contains("\'")) {
                             //checks if the word has an apostrphe in the middle and
                             // save the word without it and the part before it
-                            termsDoc[i] = handleApostrophe(termsDoc[i]);
+                            curTerm = handleApostrophe(curTerm);
                         }
 
                         //System.out.println(termsDoc[i] + "--7");
-                        if (termsDoc[i] != " ") {
-                            addToTerm(termsDoc[i]);
+                        if (curTerm != " "&&curTerm!="") {
+                            addToTerm(curTerm);
                         }
                         if (flagCapital) {
                             i = i + count - 1;
@@ -176,7 +175,7 @@ public class Parse
     {
         str=str.toLowerCase();
         //System.out.println(str+"add to term");
-        if(str!=" ") {
+        if(str!=" "&&str!="") {
             if (!m_StopWords.contains(str)) {
                 //System.out.println(str);
                 if (m_terms.containsKey(str)) {
