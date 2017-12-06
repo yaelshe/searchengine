@@ -45,6 +45,7 @@ public class Parse
         int count=0;
         for (int i=0;i<termsDoc.length;i++)
         {
+            count=0;
             String SSS=termsDoc[i].replaceAll("-","");
             termsDoc[i] = removeExtra(termsDoc[i]);
             if (termsDoc[i].length()>0&&SSS.length()>0){
@@ -124,21 +125,24 @@ public class Parse
                         count = 0;
                         if (i + 1 < termsDoc.length) {
                             str1 = termsDoc[i + 1];
-                            count = 1;
+                            //count = 1;
                             if (i + 2 < termsDoc.length) {
                                 str2 = termsDoc[i + 2];
-                                count = 2;
+                                //count = 2;
                                 if (i + 3 < termsDoc.length) {
                                     str3 = termsDoc[i + 3];
-                                    count = 3;
+                                    //count = 3;
                                 }
                             }
                         }
 
-                            List<String> ph = capitalTerm(removeExtra(termsDoc[i]),removeExtra(str1),removeExtra(str2),removeExtra(str3));
+                            List<String> ph = capitalTerm(termsDoc[i],removeExtra(str1),removeExtra(str2),removeExtra(str3));
                             flagCapital=true;// so we won't check again the same words !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                            count=ph.size();
                             for (int j = 0; j < ph.size(); j++) {
+                                addToTerm(ph.get(j).toLowerCase());
                                 total = total + (ph.get(j).toLowerCase())+" ";
+
                             }
                             termsDoc[i]=total;
                     }
@@ -149,8 +153,10 @@ public class Parse
                     }
                     //System.out.println(termsDoc[i] + "--7");
                     addToTerm(termsDoc[i]);
-                    if(flagCapital)
-                        i=i+count;
+                    if(flagCapital) {
+                        i = i + count - 1;
+                        count=0;
+                    }
                 }
             }}}
         }
@@ -180,6 +186,7 @@ public class Parse
                     m_documents.get(currDoc).docLength++;
                 }
             } else {
+                System.out.println(str+"  add to term");
                 Map<String, Integer> docss = new HashMap<>();//jkdj
                 docss.put(currDoc, 1);
                 Term newterm = new Term(str,docss);
@@ -188,7 +195,7 @@ public class Parse
                 m_documents.get(currDoc).docLength++;//
                 m_documents.get(currDoc).max_tf=m_terms.get(str).docs.get(currDoc);
                 m_documents.get(currDoc).mostCommWord=str;
-                //newterm.docs.put(currDoc,1);//update the list of docs the term is in
+                newterm.docs.put(currDoc,1);//update the list of docs the term is in
             }
         }
 
@@ -456,18 +463,19 @@ public class Parse
     }
     public static String removeExtra(String str)
     {
-        str=str.replaceAll("[,$#!?*(){}\":;+=|\\[\\]]","");
+        str=str.replaceAll("[,$#!?*(){}\":;+|\\[\\]]","");
         if (str.length()>0) {
             char last = str.charAt(str.length() - 1);
             char first = str.charAt(0);
-            if (first == '<' || first == '\'' || first == '^')
-                if(str.length()>1) {
-                    str = str.substring(1, str.length() - 1);
+            if (first == '<' || first == '\'' || first == '^') {
+                if (str.length() > 1) {
+                    str = str.substring(1, str.length());
+                } else {
+                    str = "";
                 }
-                else{
-                    str="";}
+            }
                 //  str=str.substring(0,str.length()-2);
-            else if(str.length()>0){
+            if(str.length()>0){
 
                 if (last == '.' || last == '\'' || last == '^' || last == '-' || last == '>')
                     str = str.substring(0, str.length() - 1);
