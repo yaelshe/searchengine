@@ -13,12 +13,12 @@ public class Term
         this.numOfDocIDF = docs.size();
 
     }
-    public String toString(Term term)
+    public String toString()
     {//term #numberofDocs &docname-number docname-number....
         String termStr="";
-        termStr=term.get_term()+" ";
-        termStr=termStr+"#"+getnumOfDocIDF()+" ";
-        termStr=termStr+"&"+get_docs();
+        termStr=this.get_term()+" ";
+        termStr=termStr+"#"+this.getnumOfDocIDF()+" ";
+        termStr=termStr+"&"+this.get_docs();
         return termStr;
     }
 
@@ -36,7 +36,7 @@ public class Term
 
             String key =docnum;
             String value =docs.get(docnum).toString();
-            System.out.print(key + "-" + value+" ");
+            //System.out.print(key + "-" + value+" ");
         }
         return str;
     }

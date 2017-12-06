@@ -7,7 +7,7 @@ import java.util.*;
 public class Parse
 {
     private HashSet<String> m_StopWords;
-    private Map<String,Term>m_terms;
+    public Map<String,Term>m_terms;//*******************
     //private ArrayList<String> beforeTerms;
     private Map<String,Document>m_documents;
 
@@ -44,7 +44,7 @@ public class Parse
     public void parseDoc(Document doc)
     {
         String []termsDoc=doc.getText().split("\\s+");
-        System.out.println(currDoc+"i split the text of it");
+        //System.out.println(currDoc+"i split the text of it");
         boolean flagCapital=false;
         int count=0;
         //for (int i=0;i<termsDoc.length;i++)
