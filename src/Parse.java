@@ -7,7 +7,7 @@ import java.util.*;
 public class Parse
 {
     private HashSet<String> m_StopWords;
-    public Map<String,Term>m_terms;//*******************
+    public Map<String,Term>m_terms;//******************
     //private ArrayList<String> beforeTerms;
     private Map<String,Document>m_documents;
 
