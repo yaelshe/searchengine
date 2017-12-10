@@ -21,7 +21,7 @@ public class Parse
     //private  Map<String,String> ;
     public Parse(HashSet<String> m_StopWords, Map<String,Document>documents) {
         this.m_StopWords = m_StopWords;
-        this.m_terms = new HashMap<>();
+        this.m_terms = new TreeMap<>();
         m_documents=new HashMap<>(documents);
     }
     public void ParseAll()
